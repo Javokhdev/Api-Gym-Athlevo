@@ -1,0 +1,593 @@
+basePath: /
+definitions:
+  genprotos.CreateFacilityRequest:
+    properties:
+      description:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+    type: object
+  genprotos.CreateGymRequest:
+    properties:
+      contact_number:
+        type: string
+      latitude:
+        type: number
+      location:
+        type: string
+      longtitude:
+        type: number
+      name:
+        type: string
+      owner_id:
+        type: string
+      type_gender:
+        type: string
+      type_sport:
+        type: string
+    type: object
+  genprotos.CreateUniqueRequest:
+    properties:
+      count:
+        type: integer
+      facility_id:
+        type: string
+      sport_halls_id:
+        type: string
+    type: object
+  genprotos.GetFacilityResponse:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+    type: object
+  genprotos.GetGymResponse:
+    properties:
+      contact_number:
+        type: string
+      id:
+        type: string
+      latitude:
+        type: number
+      location:
+        type: string
+      longtitude:
+        type: number
+      name:
+        type: string
+      owner_id:
+        type: string
+      type_gender:
+        type: string
+      type_sport:
+        type: string
+    type: object
+  genprotos.GetUniqueResponse:
+    properties:
+      count:
+        type: integer
+      facility_id:
+        type: string
+      id:
+        type: string
+      sport_halls_id:
+        type: string
+    type: object
+  genprotos.ListFacilityResponse:
+    properties:
+      Facility:
+        items:
+          $ref: '#/definitions/genprotos.GetFacilityResponse'
+        type: array
+    type: object
+  genprotos.ListGymResponse:
+    properties:
+      gym:
+        items:
+          $ref: '#/definitions/genprotos.GetGymResponse'
+        type: array
+    type: object
+  genprotos.ListUniquesResponse:
+    properties:
+      uniques:
+        items:
+          $ref: '#/definitions/genprotos.GetUniqueResponse'
+        type: array
+    type: object
+  genprotos.UpdateFacilityRequest:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+    type: object
+  genprotos.UpdateGymRequest:
+    properties:
+      contact_number:
+        type: string
+      id:
+        type: string
+      latitude:
+        type: number
+      location:
+        type: string
+      longtitude:
+        type: number
+      name:
+        type: string
+      owner_id:
+        type: string
+      type_gender:
+        type: string
+      type_sport:
+        type: string
+    type: object
+  genprotos.UpdateUniqueRequest:
+    properties:
+      count:
+        type: integer
+      facility_id:
+        type: string
+      id:
+        type: string
+      sport_halls_id:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Developing a platform that helps users track their spending, set a
+    budget and manage their financial goals
+  title: Budgeting SYSTEM API
+  version: "1.0"
+paths:
+  /facility/create:
+    post:
+      consumes:
+      - application/json
+      description: Create Facility
+      parameters:
+      - description: Create
+        in: body
+        name: Create
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.CreateFacilityRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create Facility
+      tags:
+      - Facility
+  /facility/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Facility
+      parameters:
+      - description: Facility ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete Facility
+      tags:
+      - Facility
+  /facility/get/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get an existing Facility record by ID
+      parameters:
+      - description: Facility ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genprotos.GetFacilityResponse'
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get Facility
+      tags:
+      - Facility
+  /facility/list:
+    get:
+      consumes:
+      - application/json
+      description: List Facilitys
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genprotos.ListFacilityResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: List Facilitys
+      tags:
+      - Facility
+  /facility/update:
+    put:
+      consumes:
+      - application/json
+      description: Update Facility
+      parameters:
+      - description: Update
+        in: body
+        name: Update
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.UpdateFacilityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update Facility
+      tags:
+      - Facility
+  /gym/create:
+    post:
+      consumes:
+      - application/json
+      description: Create Gym
+      parameters:
+      - description: Create
+        in: body
+        name: Create
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.CreateGymRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create Gym
+      tags:
+      - Gym
+  /gym/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Gym
+      parameters:
+      - description: Gym ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete Gym
+      tags:
+      - Gym
+  /gym/get/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get an existing Gym record by ID
+      parameters:
+      - description: Gym ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genprotos.GetGymResponse'
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get Gym
+      tags:
+      - Gym
+  /gym/list:
+    get:
+      consumes:
+      - application/json
+      description: List Gyms
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Name
+        in: query
+        name: name
+        type: string
+      - description: Location
+        in: query
+        name: location
+        type: string
+      - description: Type Sport
+        in: query
+        name: type_sport
+        type: string
+      - description: Type Gender
+        in: query
+        name: type_gender
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genprotos.ListGymResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: List Gyms
+      tags:
+      - Gym
+  /gym/update:
+    put:
+      consumes:
+      - application/json
+      description: Update Gym
+      parameters:
+      - description: Update
+        in: body
+        name: Update
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.UpdateGymRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update Gym
+      tags:
+      - Gym
+  /gymfacility/create:
+    post:
+      consumes:
+      - application/json
+      description: Create GymFacility
+      parameters:
+      - description: Create
+        in: body
+        name: Create
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.CreateUniqueRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create GymFacility
+      tags:
+      - GymFacility
+  /gymfacility/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete GymFacility
+      parameters:
+      - description: GymFacility ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete GymFacility
+      tags:
+      - GymFacility
+  /gymfacility/get/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get an existing GymFacility record by ID
+      parameters:
+      - description: GymFacility ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genprotos.GetUniqueResponse'
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get GymFacility
+      tags:
+      - GymFacility
+  /gymfacility/list:
+    get:
+      consumes:
+      - application/json
+      description: List GymFacilitys
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genprotos.ListUniquesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: List GymFacilitys
+      tags:
+      - GymFacility
+  /gymfacility/update:
+    put:
+      consumes:
+      - application/json
+      description: Update GymFacility
+      parameters:
+      - description: Update
+        in: body
+        name: Update
+        required: true
+        schema:
+          $ref: '#/definitions/genprotos.UpdateUniqueRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update GymFacility
+      tags:
+      - GymFacility
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
