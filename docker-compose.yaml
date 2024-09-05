@@ -1,0 +1,17 @@
+version: '1.0'
+
+services:
+  api-gateway:
+    container_name: gym_api
+    build: ./api
+    depends_on:
+      - gym_service
+    ports:
+      - "8050:8050"
+    networks:
+      - global-network
+
+
+networks:
+  global-network:
+    external: true 
