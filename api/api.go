@@ -7,10 +7,7 @@ import (
 	_ "api/genproto/auth"
 	_ "api/genproto/gym"
 
-	// "api/api/middleware"
-	// "log"
-
-	// "github.com/casbin/casbin/v2"
+	"api/api/middleware"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -28,16 +25,15 @@ import (
 // @name Authorization
 func NewGin( /*AuthConn, */ budgetingConn *grpc.ClientConn) *gin.Engine {
 	budgeting := handlerC.NewBudgetingHandler(budgetingConn)
-
+	ca := middleware.CasbinEnforcer()
+	err := ca.LoadPolicy()
+	if err != nil{
+		panic(err)
+	}
 	router := gin.Default()
 
-	// enforcer, err := casbin.NewEnforcer("/home/sobirov/go/src/gitlab.com/PersonalFinanceTracker/Api_Gateway/api/model.conf", "/home/sobirov/go/src/gitlab.com/PersonalFinanceTracker/Api_Gateway/api/policy.csv")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// // sw := router.Group("/")
-	// router.Use(middleware.NewAuth(enforcer))
+	// sw := router.Group("/")
+	// router.Use(middleware.JWTMiddleware(), middleware.CasbinMiddleware(ca))
 
 	router.GET("/api/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.Use(cors.New(cors.Config{
@@ -48,7 +44,7 @@ func NewGin( /*AuthConn, */ budgetingConn *grpc.ClientConn) *gin.Engine {
 		AllowCredentials: true,
 	}))
 
-	account := router.Group("/gym")
+	account := router.Group("/gym").Use(middleware.JWTMiddleware(),middleware.CasbinMiddleware(ca))
 	{
 		account.POST("/create", budgeting.CreateGym)
 		account.PUT("/update", budgeting.UpdateGym)
@@ -56,7 +52,7 @@ func NewGin( /*AuthConn, */ budgetingConn *grpc.ClientConn) *gin.Engine {
 		account.DELETE("/delete/:id", budgeting.DeleteGym)
 		account.GET("/list", budgeting.ListGyms)
 	}
-	budget := router.Group("/facility")
+	budget := router.Group("/facility").Use(middleware.JWTMiddleware(),middleware.CasbinMiddleware(ca))
 	{
 		budget.POST("/create", budgeting.CreateFacility)
 		budget.PUT("/update", budgeting.UpdateFacility)
@@ -64,7 +60,7 @@ func NewGin( /*AuthConn, */ budgetingConn *grpc.ClientConn) *gin.Engine {
 		budget.DELETE("/delete/:id", budgeting.DeleteFacility)
 		budget.GET("/list", budgeting.ListFacilitys)
 	}
-	category := router.Group("/gymfacility")
+	category := router.Group("/gymfacility").Use(middleware.JWTMiddleware(),middleware.CasbinMiddleware(ca))
 	{
 		category.POST("/create", budgeting.CreateGymFacility)
 		category.PUT("/update", budgeting.UpdateGymFacility)

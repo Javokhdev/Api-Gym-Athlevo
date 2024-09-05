@@ -1,84 +1,149 @@
 package middleware
 
 import (
-  "fmt"
-  "net/http"
-  "strings"
+	"errors"
+	"log"
+	"net/http"
+	"strings"
 
-  "log"
+	_ "api/docs"
+	"api/api/token"
 
-  "github.com/casbin/casbin/v2"
-  "github.com/gin-gonic/gin"
-  "github.com/golang-jwt/jwt"
-  "api/api/token"
-  "api/config"
+	"github.com/casbin/casbin/v2"
+	"github.com/gin-gonic/gin"
 )
 
-type JwtRoleAuth struct {
-  enforcer   *casbin.Enforcer
-  jwtHandler token.JWTHandler
+const (
+	ContextUserID = "userID"
+	ContextRole   = "role"
+)
+
+func CasbinEnforcer() *casbin.Enforcer {
+	e, err := casbin.NewEnforcer("config/model.conf", "config/policy.csv")
+	if err != nil {
+		log.Fatalf("Failed to initialize Casbin enforcer: %v", err)
+	}
+	return e
 }
 
-func NewAuth(enforce *casbin.Enforcer) gin.HandlerFunc {
+// JWT Middleware for token validation
+func JWTMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+			c.Abort()
+			return
+		}
 
-  auth := JwtRoleAuth{
-    enforcer: enforce,
-  }
+		if !strings.HasPrefix(authHeader, "") {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization header format"})
+			c.Abort()
+			return
+		}
 
-  return func(ctx *gin.Context) {
-    allow, err := auth.CheckPermission(ctx)
-    if err != nil {
-      valid, _ := err.(jwt.ValidationError)
-      if valid.Errors == jwt.ValidationErrorExpired {
-        ctx.AbortWithStatusJSON(http.StatusForbidden, "Invalid token !!!")
-      } else {
-        ctx.AbortWithStatusJSON(401, "Access token expired")
-      }
-    } else if !allow {
-      ctx.AbortWithStatusJSON(http.StatusForbidden, "Permission denied")
-    }
-  }
+		tokenString := strings.TrimPrefix(authHeader, "")
+
+		valid, err := token.ValidateToken(tokenString)
+		if err != nil || !valid {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token", "details": err.Error()})
+			c.Abort()
+			return
+		}
+
+		claims, err := token.ExtractClaim(tokenString)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims", "details": err.Error()})
+			c.Abort()
+			return
+		}
+
+		userID, ok := claims["user_id"].(string)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user_id claim"})
+			c.Abort()
+			return
+		}
+
+		role, ok := claims["role"].(string)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid role claim"})
+			c.Abort()
+			return
+		}
+
+		c.Set(ContextUserID, userID)
+		c.Set(ContextRole, role)
+
+		c.Next()
+	}
 }
 
-func (a *JwtRoleAuth) GetRole(r *http.Request) (string, error) {
-  var (
-    claims jwt.MapClaims
-    err    error
-  )
+// Casbin Middleware for RBAC
+func CasbinMiddleware(enforcer *casbin.Enforcer) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userRole := c.GetString(ContextRole)
 
-  jwtToken := r.Header.Get("Authorization")
+		allowed, err := enforcer.Enforce(userRole, c.FullPath(), c.Request.Method)
+		if err != nil {
+			log.Println("Casbin enforcement error:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error enforcing access control"})
+			c.Abort()
+			return
+		}
 
-  if jwtToken == "" {
-    return "unauthorized", nil
-  } else if strings.Contains(jwtToken, "Basic") {
-    return "unauthorized", nil
-  }
-  a.jwtHandler.Token = jwtToken
-  a.jwtHandler.SigningKey = config.Load().TokenKey
-  claims, err = a.jwtHandler.ExtractClaims()
+		if !allowed {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Access denied"})
+			c.Abort()
+			return
+		}
 
-  if err != nil {
-    log.Println("Error while extracting claims: ", err)
-    return "unauthorized", err
-  }
-
-  return claims["role"].(string), nil
+		c.Next()
+	}
 }
 
-func (a *JwtRoleAuth) CheckPermission(ctx *gin.Context) (bool, error) {
-  role, err := a.GetRole(ctx.Request)
-  if err != nil {
-    log.Println("Error while getting role from token: ", err)
-    return false, err
-  }
-  method := ctx.Request.Method
-  path := ctx.FullPath()
-  fmt.Println(role, path, method)
-  allowed, err := a.enforcer.Enforce(role, path, method)
-  if err != nil {
-    log.Println("Error while comparing role from csv list: ", err)
-    return false, err
-  }
+// Utility to get user ID from request
+func GetUserId(r *http.Request) (string, error) {
+	jwtToken := r.Header.Get("Authorization")
 
-  return allowed, nil
+	if jwtToken == "" || strings.Contains(jwtToken, "Basic") {
+		return "", errors.New("unauthorized")
+	}
+
+	if !strings.HasPrefix(jwtToken, "") {
+		return "", errors.New("invalid authorization header format")
+	}
+
+	tokenString := strings.TrimPrefix(jwtToken, "")
+
+	claims, err := token.ExtractClaim(tokenString)
+	if err != nil {
+		log.Println("Error while extracting claims:", err)
+		return "", err
+	}
+
+	userID, ok := claims["user_id"].(string)
+	if !ok {
+		return "", errors.New("user_id claim not found")
+	}
+	return userID, nil
+}
+
+// Error handlers
+func InvalidToken(c *gin.Context) {
+	c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+		"error": "Invalid token",
+	})
+}
+
+func RequirePermission(c *gin.Context) {
+	c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+		"error": "Permission denied",
+	})
+}
+
+func RequireRefresh(c *gin.Context) {
+	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+		"error": "Access token expired",
+	})
 }

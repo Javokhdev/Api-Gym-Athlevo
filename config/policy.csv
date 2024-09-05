@@ -1,0 +1,18 @@
+    p, admin, /gym/create, POST
+    p, admin, /gym/update/:id, PUT
+    p, admin, /gym/delete/:id, DELETE
+    p, unauthorized, /gym/list, GET
+    p, user, /gym/get/:id, GET
+
+    p, user, /facility/create, POST
+    p, user, /facility/update/:id, PUT
+    p, user, /facility/delete/:id, DELETE
+    p, user, /facility/list, GET
+    p, user, /facility/get/:id, GET
+
+    p, user, /gymfacility/create, POST
+    p, user, /gymfacility/update/:id, PUT
+    p, user, /gymfacility/delete/:id, DELETE
+    p, user, /gymfacility/list, GET
+    p, user, /gymfacility/get/:id, GET
+
