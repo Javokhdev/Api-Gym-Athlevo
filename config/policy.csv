@@ -16,3 +16,18 @@
     p, user, /gymfacility/list, GET
     p, user, /gymfacility/get/:id, GET
 
+
+    p, admin, /gym/list, GET
+    p, admin, /gym/get/:id, GET
+
+    p, admin, /facility/create, POST
+    p, admin, /facility/update/:id, PUT
+    p, admin, /facility/delete/:id, DELETE
+    p, admin, /facility/list, GET
+    p, admin, /facility/get/:id, GET
+
+    p, admin, /gymfacility/create, POST
+    p, admin, /gymfacility/update/:id, PUT
+    p, admin, /gymfacility/delete/:id, DELETE
+    p, admin, /gymfacility/list, GET
+    p, admin, /gymfacility/get/:id, GET
