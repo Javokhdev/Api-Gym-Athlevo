@@ -1,17 +1,17 @@
     p, admin, /gym/create, POST
-    p, admin, /gym/update/:id, PUT
+    p, admin, /gym/update, PUT
     p, admin, /gym/delete/:id, DELETE
     p, unauthorized, /gym/list, GET
     p, user, /gym/get/:id, GET
 
     p, user, /facility/create, POST
-    p, user, /facility/update/:id, PUT
+    p, user, /facility/update, PUT
     p, user, /facility/delete/:id, DELETE
     p, user, /facility/list, GET
     p, user, /facility/get/:id, GET
 
     p, user, /gymfacility/create, POST
-    p, user, /gymfacility/update/:id, PUT
+    p, user, /gymfacility/update, PUT
     p, user, /gymfacility/delete/:id, DELETE
     p, user, /gymfacility/list, GET
     p, user, /gymfacility/get/:id, GET
@@ -21,13 +21,13 @@
     p, admin, /gym/get/:id, GET
 
     p, admin, /facility/create, POST
-    p, admin, /facility/update/:id, PUT
+    p, admin, /facility/update, PUT
     p, admin, /facility/delete/:id, DELETE
     p, admin, /facility/list, GET
     p, admin, /facility/get/:id, GET
 
     p, admin, /gymfacility/create, POST
-    p, admin, /gymfacility/update/:id, PUT
+    p, admin, /gymfacility/update, PUT
     p, admin, /gymfacility/delete/:id, DELETE
     p, admin, /gymfacility/list, GET
     p, admin, /gymfacility/get/:id, GET
