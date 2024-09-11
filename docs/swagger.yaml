@@ -405,6 +405,10 @@ paths:
         in: query
         name: type_gender
         type: string
+      - description: Owner Id
+        in: query
+        name: owner_id
+        type: string
       produces:
       - application/json
       responses:

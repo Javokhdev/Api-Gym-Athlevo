@@ -418,6 +418,12 @@ const docTemplate = `{
                         "description": "Type Gender",
                         "name": "type_gender",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Owner Id",
+                        "name": "owner_id",
+                        "in": "query"
                     }
                 ],
                 "responses": {

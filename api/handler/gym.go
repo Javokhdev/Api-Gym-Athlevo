@@ -116,6 +116,7 @@ func (h *Handler) GetGym(ctx *gin.Context) {
 // @Param location query string false "Location"
 // @Param type_sport query string false "Type Sport"
 // @Param type_gender query string false "Type Gender"
+// @Param owner_id query string false "Owner Id"
 // @Success 200 {object} pb.ListGymResponse
 // @Failure 400 {string} string "Bad Request"
 // @Router /gym/list [get]
@@ -127,6 +128,7 @@ func (h *Handler) ListGyms(ctx *gin.Context) {
 	location := ctx.Query("location")
 	typeSport := ctx.Query("type_sport")
 	typeGender := ctx.Query("type_gender")
+	ownerId := ctx.Query("owner_id")
 
 	page, err := strconv.Atoi(pageStr)
 	if err != nil || page <= 0 {
@@ -139,6 +141,8 @@ func (h *Handler) ListGyms(ctx *gin.Context) {
 		Location:   location,
 		TypeSport:  typeSport,
 		TypeGender: typeGender,
+		OwnerId: ownerId,
+		
 	}
 
 	res, err := h.Gym.ListGym(context.Background(), req)
